@@ -1,0 +1,21 @@
+
+services:
+  go-orchestrator:
+    build: ./go-orchestrator
+    ports:
+      - "8080:8080"
+    depends_on:
+      - langgraph-engine
+    networks:
+      - autopilot_net
+
+  langgraph-engine:
+    build: ./langgraph-engine
+    ports:
+      - "8000:8000"
+    networks:
+      - autopilot_net
+
+networks:
+  autopilot_net:
+    driver: bridge

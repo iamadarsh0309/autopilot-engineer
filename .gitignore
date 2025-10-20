@@ -1,0 +1,18 @@
+# Go
+/go-orchestrator/bin/
+/go-orchestrator/vendor/
+*.log
+
+# Python
+/langgraph-engine/__pycache__/
+/langgraph-engine/.venv/
+/langgraph-engine/*.pyc
+
+# Env
+.env
+.env.*
+
+# Docker
+*.pid
+*.data
+*.db
