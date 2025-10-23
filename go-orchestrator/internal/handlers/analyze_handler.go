@@ -1,34 +1,40 @@
 package handlers
 
 import (
-	"autopilot-engineer/go-orchestrator/internal/services"
-	"autopilot-engineer/go-orchestrator/internal/utils"
+	"context"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
+	"autopilot-engineer/go-orchestrator/internal/core"
+	"autopilot-engineer/go-orchestrator/internal/services"
 )
 
 type AnalyzeHandler struct {
-	service *services.AnalyzeService
+	LangGraph services.LangGraphService
 }
 
-func NewAnalyzeHandler(s *services.AnalyzeService) *AnalyzeHandler {
-	return &AnalyzeHandler{service: s}
+func NewAnalyzeHandler(langGraph services.LangGraphService) *AnalyzeHandler {
+	return &AnalyzeHandler{LangGraph: langGraph}
 }
 
-func (h *AnalyzeHandler) Analyze(c *fiber.Ctx) error {
-	var body struct {
-		Text string `json:"text"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid JSON")
+func (h *AnalyzeHandler) HandleAnalyze(c *gin.Context) {
+	var payload map[string]interface{}
+	if err := c.BindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+		return
 	}
 
-	result, err := h.service.AnalyzeText(body.Text)
+	// Use pure function (no HTTP inside it)
+	prepared := core.ProcessInput(payload)
+
+	resp, err := h.LangGraph.SendToLangGraph(context.Background(), prepared)
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	return utils.SuccessResponse(c, fiber.Map{
-		"analysis": result,
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+		"data":   resp,
 	})
 }

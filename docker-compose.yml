@@ -12,7 +12,7 @@ services:
   langgraph-engine:
     build: ./langgraph-engine
     ports:
-      - "8000:8000"
+      - "8000:8001"
     networks:
       - autopilot_net
 
