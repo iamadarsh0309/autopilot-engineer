@@ -1,4 +1,3 @@
-
 services:
   go-orchestrator:
     build: ./go-orchestrator
@@ -6,16 +5,30 @@ services:
       - "8080:8080"
     depends_on:
       - langgraph-engine
+      - mongo
     networks:
       - autopilot_net
 
   langgraph-engine:
     build: ./langgraph-engine
     ports:
-      - "8000:8001"
+      - "8000:8000"
+    networks:
+      - autopilot_net
+
+  mongo:
+    image: mongo:7
+    container_name: autopilot-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     networks:
       - autopilot_net
 
 networks:
   autopilot_net:
     driver: bridge
+
+volumes:
+  mongo_data:
